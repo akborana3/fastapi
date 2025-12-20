@@ -11,7 +11,7 @@ HTML_FORM = """
   <head><title>Telethon Bot Session Generator</title></head>
   <body style="font-family: sans-serif; padding: 2rem;">
     <h2>Create Telethon Bot Session</h2>
-    /start
+    /api/start
       <label>API_ID:</label><br>
       <input type="text" name="api_id" required><br><br>
 
@@ -55,22 +55,30 @@ async def start_bot(
     html = ["<h3>Bot Started Successfully!</h3>"]
 
     if os.path.exists(primary):
-        html.append(f'<p>/download?file={primary}Download {os.path.basename(primary)}</a></p>')
+        html.append(
+            f'<p>/api/download?file={primary}Download {os.path.basename(primary)}</a></p>'
+        )
     else:
         html.append("<p style='color:red'>Primary session file not found.</p>")
 
     if os.path.exists(journal1):
-        html.append(f'<p>/download?file={journal1}Download {os.path.basename(journal1)}</a></p>')
+        html.append(
+            f'<p>/api/download?file={journal1}Download {os.path.basename(journal1)}</a></p>'
+        )
     elif os.path.exists(journal2):
-        html.append(f'<p>/download?file={journal2}Download {os.path.basename(journal2)}</a></p>')
+        html.append(
+            f'<p>/api/download?file={journal2}Download {os.path.basename(journal2)}</a></p>'
+        )
     else:
         html.append("<p>No SQLite journal file detected (it may be unnecessary).</p>")
 
-    html.append('<p>/Back</a></p>')
+    html.append('<p>/api/Back</a></p>')
     return HTMLResponse(content="\n".join(html))
 
 @app.get("/download")
-async def download_file(file: str = Query(..., description="Absolute path under /tmp, e.g., /tmp/bot_session.session")):
+async def download_file(
+    file: str = Query(..., description="Absolute path under /tmp, e.g., /tmp/bot_session.session")
+):
     # Restrict to temp dir for safety
     if not file.startswith("/tmp/"):
         return JSONResponse(status_code=400, content={"error": "Invalid file path."})
@@ -86,3 +94,4 @@ async def download_file(file: str = Query(..., description="Absolute path under 
         media_type="application/octet-stream",
         headers={"Content-Disposition": f'attachment; filename="{os.path.basename(file)}"'}
     )
+  
